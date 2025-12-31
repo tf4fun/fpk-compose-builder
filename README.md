@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build FPK Package
-        uses: pysio2007/docker-compose-to-fpk-action@main
+        uses: tf4fun/fpk-compose-builder@main
         id: build
         with:
           input-dir: ./my-app
@@ -251,7 +251,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build FPK
-        uses: pysio2007/docker-compose-to-fpk-action@main
+        uses: tf4fun/fpk-compose-builder@main
         with:
           input-dir: apps/${{ matrix.app }}
           output-dir: dist/${{ matrix.app }}
@@ -281,7 +281,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build FPK
-        uses: pysio2007/docker-compose-to-fpk-action@main
+        uses: tf4fun/fpk-compose-builder@main
         id: build
         with:
           input-dir: ./my-app
@@ -299,8 +299,8 @@ jobs:
 
 ```bash
 # 克隆仓库
-git clone https://github.com/pysio2007/docker-compose-to-fpk-action.git
-cd docker-compose-to-fpk-action
+git clone https://github.com/tf4fun/fpk-compose-builder.git
+cd fpk-compose-builder
 
 # 构建 Docker 镜像
 docker build -t fpk-builder .
