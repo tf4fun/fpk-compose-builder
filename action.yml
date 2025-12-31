@@ -1,0 +1,32 @@
+name: 'Build FPK Package'
+description: 'Convert docker-compose to fnOS fpk package'
+branding:
+  icon: 'package'
+  color: 'blue'
+
+inputs:
+  input-dir:
+    description: 'Directory containing compose.yaml and icon.png'
+    required: true
+  output-dir:
+    description: 'Output directory for fpk file'
+    required: false
+    default: './dist'
+
+outputs:
+  fpk-file:
+    description: 'Path to generated fpk file'
+  app-name:
+    description: 'Application name from manifest'
+  app-version:
+    description: 'Application version from manifest'
+
+runs:
+  using: 'docker'
+  image: 'fpk-compose-builder/Dockerfile'
+  args:
+    - build
+    - -i
+    - ${{ inputs.input-dir }}
+    - -o
+    - ${{ inputs.output-dir }}

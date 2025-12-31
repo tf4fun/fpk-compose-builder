@@ -1,0 +1,40 @@
+# IDE
+/.idea
+/references
+/.claude
+/.kiro
+/.vscode
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/bin
+
+# Test binary
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Go workspace file
+go.work
+
+# Temporary files
+*.tmp
+*.bak
+*~
+.DS_Store
+
+# Logs
+*.log
+/logs/
+/data/
+
+# User configuration overrides
+**/.env
+!**/.env.example
+
+/references

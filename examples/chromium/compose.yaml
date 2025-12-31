@@ -1,0 +1,105 @@
+x-fnpack:
+  manifest:
+    appname: "docker-chromium"
+    version: "1.2.3"
+    desc: "Chromium 是一个开源浏览器项目，旨在为所有用户构建一种更安全、更快速、更稳定的网络体验方式。<br>请尽快卸载旧版本 Chromium 并安装新版本！新版本已修复 Chromium 路径访问问题，首次进入须创建密码。"
+    arch: "noarch"
+    maintainer: "linuxserver"
+    maintainer_url: "https://docs.linuxserver.io/images/docker-chromium"
+    distributor: "linuxserver"
+    distributor_url: "https://docs.linuxserver.io/"
+    os_min_ver: "7.2-64555"
+    beta: "yes"
+    reloadui: "yes"
+    desktop_uidir: "ui"
+    display_name: "浏览器"
+    desktop_applaunchname: "docker-chromium.Application"
+    changelog: "初版"
+    source: thirdparty
+
+  wizard/install: |
+    [
+      {
+        "stepTitle": "Chromium",
+        "items": [
+          {
+            "type": "tips",
+            "helpText": "请初始化账号密码; 初始化完成后, 密码将不可更改; 若要更改密码, 请重新安装应用."
+          }
+        ]
+      },
+      {
+        "stepTitle": "Chromium 参数配置",
+        "items": [
+          {
+            "type": "text",
+            "helpText": "最小3位字符",
+            "field": "wizard_username",
+            "label": "账号",
+            "rules": [
+              {
+                "required": true,
+                "message": "输入范围错误",
+                "min": 3,
+                "max": 250
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "helpText": "最小5位字符",
+            "field": "wizard_password",
+            "label": "密码",
+            "rules": [
+              {
+                "required": true,
+                "message": "输入范围错误",
+                "min": 5,
+                "max": 250
+              }
+            ]
+          }
+        ]
+      }
+    ]
+
+  app/ui/config: |
+    {
+      ".url": {
+        "docker-chromium.Application": {
+          "title": "浏览器",
+          "desc": "浏览器",
+          "icon": "images/icon-{0}.PNG",
+          "type": "url",
+          "url": "/chromium/",
+          "allUsers": false
+        }
+      }
+    }
+
+services:
+  chromium:
+    image: registry.cn-guangzhou.aliyuncs.com/fnapp/trim-chromium:latest
+    container_name: chromium
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      - PUID=${TRIM_UID}
+      - PGID=${TRIM_GID}
+      - TZ=Etc/UTC
+      - SUBFOLDER=/chromium/
+      - LC_ALL=zh_CN.UTF-8
+      - CUSTOM_USER=${wizard_username}
+      - PASSWORD=${wizard_password}
+    volumes:
+      - /var/apps/docker-chromium/shares/chromium/config:/config
+    ports:
+      - 3000:3000
+      - 3001:3001
+    shm_size: "1gb"
+    restart: unless-stopped
+    networks:
+      - trim-default
+networks:
+  trim-default:
+    external: true
