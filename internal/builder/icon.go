@@ -1,6 +1,8 @@
 package builder
 
 import (
+	"bytes"
+	_ "embed"
 	"fmt"
 	"image"
 	"image/color"
@@ -12,6 +14,12 @@ import (
 
 	"github.com/disintegration/imaging"
 )
+
+//go:embed icons/ICON.PNG
+var defaultIcon64 []byte
+
+//go:embed icons/ICON_256.PNG
+var defaultIcon256 []byte
 
 // IconHandler handles icon processing for FPK packages
 type IconHandler struct {
@@ -29,10 +37,10 @@ func (h *IconHandler) ProcessIcons() error {
 	iconPath, err := h.FindIcon()
 	if err != nil {
 		if h.builder.Verbose {
-			fmt.Printf("No icon found: %v, using default\n", err)
+			fmt.Printf("No icon found: %v, using default icons\n", err)
 		}
-		// No icon found, skip icon processing
-		return nil
+		// No icon found, use embedded default icons
+		return h.copyDefaultIcons()
 	}
 
 	if h.builder.Verbose {
@@ -176,6 +184,47 @@ func (h *IconHandler) saveIcon(img image.Image, destPath string) error {
 	// Encode and save as PNG
 	if err := png.Encode(outFile, img); err != nil {
 		return fmt.Errorf("failed to encode PNG: %w", err)
+	}
+
+	return nil
+}
+
+// copyDefaultIcons copies the embedded default icons when no user icon is provided
+func (h *IconHandler) copyDefaultIcons() error {
+	appDir := h.builder.GetAppDir()
+
+	// Load default 64x64 icon
+	icon64, err := png.Decode(bytes.NewReader(defaultIcon64))
+	if err != nil {
+		return fmt.Errorf("failed to decode default 64x64 icon: %w", err)
+	}
+
+	// Load default 256x256 icon
+	icon256, err := png.Decode(bytes.NewReader(defaultIcon256))
+	if err != nil {
+		return fmt.Errorf("failed to decode default 256x256 icon: %w", err)
+	}
+
+	// Define destinations for default icons
+	icons := []struct {
+		img      image.Image
+		destPath string
+		size     int
+	}{
+		{icon64, filepath.Join(appDir, "ICON.PNG"), 64},
+		{icon256, filepath.Join(appDir, "ICON_256.PNG"), 256},
+		{icon64, filepath.Join(appDir, "app", "ui", "images", "icon-64.png"), 64},
+		{icon256, filepath.Join(appDir, "app", "ui", "images", "icon-256.png"), 256},
+	}
+
+	for _, icon := range icons {
+		if err := h.saveIcon(icon.img, icon.destPath); err != nil {
+			return fmt.Errorf("failed to save default icon %s: %w", icon.destPath, err)
+		}
+
+		if h.builder.Verbose {
+			fmt.Printf("Written (default): %s (%dx%d)\n", icon.destPath, icon.size, icon.size)
+		}
 	}
 
 	return nil
