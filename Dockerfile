@@ -16,17 +16,23 @@ COPY . .
 # Build the binary
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o fpk-compose-builder ./cmd/fpk-compose-builder
 
-# Runtime stage
-FROM alpine:latest
+# Runtime stage - use debian for glibc compatibility with fnpack
+FROM debian:bookworm-slim
 
 # Install runtime dependencies
-RUN apk add --no-cache bash docker-cli curl
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    bash \
+    curl \
+    ca-certificates \
+    docker.io \
+    && rm -rf /var/lib/apt/lists/*
 
 # Download and install fnpack CLI
 ARG FNPACK_VERSION=1.0.4
 RUN curl -L -o /usr/local/bin/fnpack \
     "https://static2.fnnas.com/fnpack/fnpack-${FNPACK_VERSION}-linux-amd64" && \
-    chmod +x /usr/local/bin/fnpack
+    chmod +x /usr/local/bin/fnpack && \
+    fnpack --version
 
 # Copy the built binary from builder stage
 COPY --from=builder /app/fpk-compose-builder /usr/local/bin/fpk-compose-builder
