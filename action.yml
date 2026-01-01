@@ -23,7 +23,7 @@ outputs:
 
 runs:
   using: 'docker'
-  image: 'fpk-compose-builder/Dockerfile'
+  image: 'Dockerfile'
   args:
     - build
     - -i
