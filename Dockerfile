@@ -32,7 +32,7 @@ ARG FNPACK_VERSION=1.0.4
 RUN curl -L -o /usr/local/bin/fnpack \
     "https://static2.fnnas.com/fnpack/fnpack-${FNPACK_VERSION}-linux-amd64" && \
     chmod +x /usr/local/bin/fnpack && \
-    fnpack --version
+    fnpack --help
 
 # Copy the built binary from builder stage
 COPY --from=builder /app/fpk-compose-builder /usr/local/bin/fpk-compose-builder
