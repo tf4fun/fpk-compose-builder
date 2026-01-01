@@ -16,14 +16,15 @@ type UIConfigEntry struct {
 }
 
 // GenerateDefaultUIConfig generates the default app/ui/config JSON content
-// Creates a default configuration based on service name and port
-func GenerateDefaultUIConfig(vars parser.Variables) (string, error) {
-	appEntry := vars.ServiceName + ".Application"
+// Creates a default configuration based on appname and port
+// Note: fnOS requires entry keys to use appname as prefix
+func GenerateDefaultUIConfig(vars parser.Variables, appname string) (string, error) {
+	appEntry := appname + ".Application"
 
 	config := map[string]interface{}{
 		".url": map[string]interface{}{
 			appEntry: UIConfigEntry{
-				Title:    vars.ServiceName,
+				Title:    appname,
 				Icon:     "images/icon-{0}.png",
 				Type:     "url",
 				Protocol: "http",

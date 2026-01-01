@@ -125,7 +125,7 @@ func (w *Writer) WriteUIConfig() error {
 	files := w.builder.Compose.XFnpack.Files
 
 	if !w.hasFile(files, "app/ui/config") {
-		content, err := generator.GenerateDefaultUIConfig(w.builder.Variables)
+		content, err := generator.GenerateDefaultUIConfig(w.builder.Variables, w.builder.AppName)
 		if err != nil {
 			return fmt.Errorf("failed to generate UI config: %w", err)
 		}
@@ -145,10 +145,9 @@ func (w *Writer) WriteUIConfig() error {
 
 // CopyCompose copies the compose.yaml to app/docker/ with x-fnpack removed
 func (w *Writer) CopyCompose() error {
-	// Find the compose file
-	composePath := filepath.Join(w.builder.InputDir, "compose.yaml")
-	if _, err := os.Stat(composePath); os.IsNotExist(err) {
-		composePath = filepath.Join(w.builder.InputDir, "docker-compose.yaml")
+	composePath, err := FindComposeFile(w.builder.InputDir)
+	if err != nil {
+		return err
 	}
 
 	// Clean the compose content (remove x-fnpack)

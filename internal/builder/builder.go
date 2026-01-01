@@ -9,6 +9,27 @@ import (
 	"fpk-compose-builder/internal/parser"
 )
 
+// composeFileNames defines the priority order for compose file detection
+// Priority: compose.yaml > compose.yml > docker-compose.yaml > docker-compose.yml
+var composeFileNames = []string{
+	"compose.yaml",
+	"compose.yml",
+	"docker-compose.yaml",
+	"docker-compose.yml",
+}
+
+// FindComposeFile searches for a compose file in the given directory
+// Returns the full path to the first found file, or error if none found
+func FindComposeFile(dir string) (string, error) {
+	for _, name := range composeFileNames {
+		path := filepath.Join(dir, name)
+		if _, err := os.Stat(path); err == nil {
+			return path, nil
+		}
+	}
+	return "", fmt.Errorf("no compose file found in %s (tried: %v)", dir, composeFileNames)
+}
+
 // Builder handles the construction of FPK directory structure
 type Builder struct {
 	// InputDir is the directory containing compose.yaml and icon
@@ -67,14 +88,9 @@ func (b *Builder) Build() error {
 
 // parseCompose parses the compose file and extracts variables
 func (b *Builder) parseCompose() error {
-	composePath := filepath.Join(b.InputDir, "compose.yaml")
-
-	// Try compose.yaml first, then docker-compose.yaml
-	if _, err := os.Stat(composePath); os.IsNotExist(err) {
-		composePath = filepath.Join(b.InputDir, "docker-compose.yaml")
-		if _, err := os.Stat(composePath); os.IsNotExist(err) {
-			return fmt.Errorf("compose.yaml or docker-compose.yaml not found in %s", b.InputDir)
-		}
+	composePath, err := FindComposeFile(b.InputDir)
+	if err != nil {
+		return err
 	}
 
 	compose, err := parser.ParseComposeFile(composePath)
