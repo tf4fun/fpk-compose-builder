@@ -116,7 +116,7 @@ x-fnpack:
         "my-app.Application": {
           "title": "我的应用",
           "desc": "应用描述",
-          "icon": "images/icon-{0}.PNG",
+          "icon": "images/icon-{0}.png",
           "type": "url",
           "url": "/my-app/",
           "allUsers": false

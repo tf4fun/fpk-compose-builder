@@ -24,7 +24,7 @@ func GenerateDefaultUIConfig(vars parser.Variables) (string, error) {
 		".url": map[string]interface{}{
 			appEntry: UIConfigEntry{
 				Title:    vars.ServiceName,
-				Icon:     "images/icon_{0}.png",
+				Icon:     "images/icon-{0}.png",
 				Type:     "url",
 				Protocol: "http",
 				Port:     vars.FirstPort,

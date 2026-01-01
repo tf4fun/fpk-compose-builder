@@ -124,12 +124,12 @@ func (h *IconHandler) ResizeIcon(src image.Image, width, height int) image.Image
 
 // CopyIcons generates and copies icons to all required locations
 // Generates: ICON.PNG (64x64), ICON_256.PNG (256x256)
-// Also copies to: app/ui/images/icon_64.png, app/ui/images/icon_256.png
+// Also copies to: app/ui/images/icon-64.png, app/ui/images/icon-256.png
 func (h *IconHandler) CopyIcons(srcImg image.Image) error {
 	appDir := h.builder.GetAppDir()
 
 	// Define icon sizes and destinations
-	// Note: app/ui/images uses lowercase .png and underscore (icon_64.png)
+	// Note: app/ui/images uses icon-{size}.png format (hyphen, lowercase extension)
 	icons := []struct {
 		width    int
 		height   int
@@ -137,8 +137,8 @@ func (h *IconHandler) CopyIcons(srcImg image.Image) error {
 	}{
 		{64, 64, filepath.Join(appDir, "ICON.PNG")},
 		{256, 256, filepath.Join(appDir, "ICON_256.PNG")},
-		{64, 64, filepath.Join(appDir, "app", "ui", "images", "icon_64.png")},
-		{256, 256, filepath.Join(appDir, "app", "ui", "images", "icon_256.png")},
+		{64, 64, filepath.Join(appDir, "app", "ui", "images", "icon-64.png")},
+		{256, 256, filepath.Join(appDir, "app", "ui", "images", "icon-256.png")},
 	}
 
 	for _, icon := range icons {
