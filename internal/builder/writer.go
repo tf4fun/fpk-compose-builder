@@ -170,15 +170,65 @@ func (w *Writer) CopyCompose() error {
 	return nil
 }
 
-// WriteLicense writes an empty LICENSE file
-func (w *Writer) WriteLicense() error {
-	licensePath := filepath.Join(w.builder.GetAppDir(), "LICENSE")
-	if err := os.WriteFile(licensePath, []byte(""), 0644); err != nil {
-		return fmt.Errorf("failed to write LICENSE: %w", err)
+// findLicenseFile searches for LICENSE file in the given directory
+// Returns the full path if found, empty string otherwise
+// Priority order: LICENSE, LICENSE.txt, LICENSE.md (case-insensitive)
+func findLicenseFile(inputDir string) string {
+	// Priority order for LICENSE file names
+	licenseNames := []string{"LICENSE", "LICENSE.txt", "LICENSE.md"}
+
+	// Read directory entries
+	entries, err := os.ReadDir(inputDir)
+	if err != nil {
+		return ""
 	}
 
-	if w.builder.Verbose {
-		fmt.Printf("Written: %s\n", licensePath)
+	// Check each priority level
+	for _, licenseName := range licenseNames {
+		for _, entry := range entries {
+			if entry.IsDir() {
+				continue
+			}
+			// Case-insensitive comparison
+			if strings.EqualFold(entry.Name(), licenseName) {
+				return filepath.Join(inputDir, entry.Name())
+			}
+		}
+	}
+
+	return ""
+}
+
+// WriteLicense copies LICENSE from input directory or creates empty file
+func (w *Writer) WriteLicense() error {
+	licensePath := filepath.Join(w.builder.GetAppDir(), "LICENSE")
+
+	// Try to find LICENSE file in input directory
+	sourceLicense := findLicenseFile(w.builder.InputDir)
+
+	if sourceLicense != "" {
+		// Copy existing LICENSE file
+		content, err := os.ReadFile(sourceLicense)
+		if err != nil {
+			return fmt.Errorf("failed to read LICENSE file %s: %w", sourceLicense, err)
+		}
+
+		if err := os.WriteFile(licensePath, content, 0644); err != nil {
+			return fmt.Errorf("failed to write LICENSE: %w", err)
+		}
+
+		if w.builder.Verbose {
+			fmt.Printf("Copied LICENSE from: %s\n", sourceLicense)
+		}
+	} else {
+		// Create empty LICENSE file
+		if err := os.WriteFile(licensePath, []byte(""), 0644); err != nil {
+			return fmt.Errorf("failed to write LICENSE: %w", err)
+		}
+
+		if w.builder.Verbose {
+			fmt.Printf("Written (empty): %s\n", licensePath)
+		}
 	}
 
 	return nil
